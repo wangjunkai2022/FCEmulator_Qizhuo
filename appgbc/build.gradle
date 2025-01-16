@@ -49,13 +49,13 @@ android {
             signingConfig signingConfigs.demokey
         }
     }
-    applicationVariants.all { variant ->
-        variant.outputs.all {
-            def fileName = project.name + '-' + variant.name + '-V' +
-                    defaultConfig.versionCode + ".apk"
-            outputFileName = fileName
-        }
-    }
+//    applicationVariants.all { variant ->
+//        variant.outputs.all {
+//            def fileName = project.name + '-' + variant.name + '-V' +
+//                    defaultConfig.versionCode + ".apk"
+//            outputFileName = fileName
+//        }
+//    }
     externalNativeBuild {
         cmake {
             path 'src/main/cpp/CMakeLists.txt'

@@ -88,7 +88,7 @@ abstract public class BaseGameGalleryActivity extends AppCompatActivity
     }
 
     public void searchUri2Roms(Uri uri) {
-        CopyRoms2Files search = new CopyRoms2Files(this, uri, this);
+        CopyRoms2Files search = new CopyRoms2Files(this, uri, this, exts);
         search.start();
     }
 
@@ -153,7 +153,7 @@ abstract public class BaseGameGalleryActivity extends AppCompatActivity
 
     protected Set<String> getArchiveExtensions() {
         HashSet<String> set = new HashSet<>();
-        set.add("zip");
+//        set.add("zip");
         return set;
     }
 

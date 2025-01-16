@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CopyRoms2Files extends Thread {
@@ -25,15 +26,15 @@ public class CopyRoms2Files extends Thread {
     private BaseGameGalleryActivity activity;
     private AtomicBoolean running = new AtomicBoolean(false);
     private OnRomsCopyListener listener;
-
+    Set<String> ext;
     String basePath;
-    List<DocumentFile> nesFiles;
 
-    public CopyRoms2Files(BaseGameGalleryActivity activity, Uri rootUri, OnRomsCopyListener listener) {
+    public CopyRoms2Files(BaseGameGalleryActivity activity, Uri rootUri, OnRomsCopyListener listener, Set<String> ext) {
         try {
             this.rootUri = rootUri;
             this.activity = activity;
             this.listener = listener;
+            this.ext = ext;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -74,12 +75,11 @@ public class CopyRoms2Files extends Thread {
 
 
     public void findNesFiles(Uri uri) {
-        nesFiles = new ArrayList<>();
         DocumentFile documentFile = DocumentFile.fromTreeUri(activity, uri);
         if (documentFile != null && documentFile.isDirectory()) {
             searchNesFiles(documentFile, documentFile.getName());
         } else {
-            NLog.e("Error", "Not a valid directory");
+            NLog.e("查找文件失败", Uri.decode(uri.getPath()) + "不是文件夹");
         }
         activity.runOnUiThread(() -> listener.onRomsFinderCancel());
     }
@@ -89,16 +89,26 @@ public class CopyRoms2Files extends Thread {
             String newPath = currentPath + "/" + file.getName(); // 路径拼接
             if (file.isDirectory()) {
                 searchNesFiles(file, newPath); // 递归查找
-            } else if (file.getName() != null && file.getName().endsWith(".nes")) {
+            } else if (file.getName() != null) {
                 listener.onRomsFoundFile(file.getName());
-//                nesFiles.add(file);
+                boolean isOk = false;
+                for (String ex : ext) {
+                    if (file.getName().endsWith(ex)) {
+                        isOk = true;
+                        break;
+                    }
+                }
+                if (!isOk) {
+                    NLog.d("文件不是需要的Rom", Uri.decode(file.getUri().getPath()));
+                    continue;
+                }
                 // 指定应用内的 roms 文件夹
                 File baseDir = activity.getExternalFilesDir(null); // 获取应用的基本外部存储目录
                 String abs_path = getRelativePath(rootUri, file.getUri());
                 File romsDir = new File(baseDir, "roms" + "/" + abs_path);
                 romsDir.getParentFile().mkdirs();
                 copyDocumentFileToLocalFile(file, romsDir);
-                NLog.d("Found NES File", file.getUri().toString());
+                NLog.d("找到的游戏Rom文件", Uri.decode(file.getUri().getPath()));
             }
         }
     }
@@ -106,7 +116,7 @@ public class CopyRoms2Files extends Thread {
     private void copyDocumentFileToLocalFile(DocumentFile documentFile, File destFile) {
         // 检查目标文件是否已存在
         if (destFile.exists()) {
-            NLog.d("Copy Skipped", "File already exists: " + destFile.getAbsolutePath());
+            NLog.d("不复制文件", "路径中找到了此文件: " + Uri.decode(destFile.getAbsolutePath()));
             return; // 如果文件存在，跳过复制
         }
         listener.onRomsCopy2Files(destFile);
@@ -121,9 +131,9 @@ public class CopyRoms2Files extends Thread {
             while ((length = in.read(buffer)) > 0) {
                 out.write(buffer, 0, length);
             }
-            NLog.d("Copy Success", "Copied to: " + destFile.getAbsolutePath());
+            NLog.d("复制完毕", "复制到: " + Uri.decode(destFile.getAbsolutePath()));
         } catch (Exception e) {
-            NLog.e("Copy Error", e.getMessage());
+            NLog.e("复制错误", e.getMessage());
         } finally {
             try {
                 if (in != null) {
@@ -138,9 +148,6 @@ public class CopyRoms2Files extends Thread {
         }
     }
 
-    public List<DocumentFile> getNesFiles() {
-        return nesFiles;
-    }
 
     @Override
     public void run() {
