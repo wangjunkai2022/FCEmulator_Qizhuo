@@ -28,9 +28,9 @@ jobs:
       - name: Upload APK to Release
         uses: softprops/action-gh-release@v1
         with:
-          files:
-            - appnes/build/outputs/apk/release/appnes-release.apk  # 添加 APK 的路径
-            - appgg/build/outputs/apk/release/appgg-release.apk  # 添加 APK 的路径
-            - appgbc/build/outputs/apk/release/appgbc-release.apk  # 添加 APK 的路径
+          files: |
+            appnes/build/outputs/apk/release/appnes-release.apk  # 添加 APK 的路径
+            appgg/build/outputs/apk/release/appgg-release.apk  # 添加 APK 的路径
+            appgbc/build/outputs/apk/release/appgbc-release.apk  # 添加 APK 的路径
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub 提供的 token
