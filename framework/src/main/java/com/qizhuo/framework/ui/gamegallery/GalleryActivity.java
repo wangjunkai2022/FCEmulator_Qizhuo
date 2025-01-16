@@ -27,6 +27,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -40,8 +41,8 @@ import com.qizhuo.framework.gamedata.dao.entity.GameEntity;
 import com.qizhuo.framework.utils.DownloadFileUtil;
 import com.qizhuo.framework.utils.HttpDownloader;
 import com.qizhuo.framework.utils.ZipUtil;
-import com.unity3d.ads.IUnityAdsListener;
-import com.unity3d.ads.UnityAds;
+//import com.unity3d.ads.IUnityAdsListener;
+//import com.unity3d.ads.UnityAds;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,7 +64,7 @@ import com.qizhuo.framework.utils.NLog;
 
 
 public abstract class GalleryActivity extends BaseGameGalleryActivity
-        implements OnItemClickListener  {
+        implements OnItemClickListener {
 
     public static final String EXTRA_TABS_IDX = "EXTRA_TABS_IDX";
 
@@ -77,13 +78,14 @@ public abstract class GalleryActivity extends BaseGameGalleryActivity
     private boolean rotateAnim = false;
     private TabLayout mTabLayout;
     //  public static  ArrayList<GameEntity> finalStringListstrlist=new ArrayList<>();
-    public static  ArrayList<GameEntity> finalStringListstrlist=new ArrayList<>();
+    public static ArrayList<GameEntity> finalStringListstrlist = new ArrayList<>();
     /**
      * 输入框
      */
     private EditText etInput;
     private Button search_btn_backs;
     private boolean DEV_MODE = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,16 +111,14 @@ public abstract class GalleryActivity extends BaseGameGalleryActivity
 //        }
 //
         try {
-            new Thread (){
+            new Thread() {
                 @Override
                 public void run() {
                     super.run();
-                    if (!ZipUtil.checkInit())
-                    {
+                    if (!ZipUtil.checkInit()) {
                         ZipUtil.Init(getApplication());
                         try {
-                            if (ZipUtil.fileIsExists())
-                            {
+                            if (ZipUtil.fileIsExists()) {
                                 ZipUtil.deletefile();
                             }
                         } catch (Exception e) {
@@ -132,44 +132,44 @@ public abstract class GalleryActivity extends BaseGameGalleryActivity
             e.printStackTrace();
         }
 
-        try {
-            UnityAds.initialize(GalleryActivity.this,"4072917",true);
-            //Network Connectivity Status
-            UnityAds.addListener(new IUnityAdsListener() {
-                @Override
-                public void onUnityAdsReady(String s) {
-
-                }
-
-                /**
-                 * @param s
-                 */
-                @Override
-                public void onUnityAdsStart(String s) {
-
-                }
-
-                /**
-                 * @param s
-                 * @param finishState
-                 */
-                @Override
-                public void onUnityAdsFinish(String s, UnityAds.FinishState finishState) {
-
-                }
-
-                /**
-                 * @param unityAdsError
-                 * @param s
-                 */
-                @Override
-                public void onUnityAdsError(UnityAds.UnityAdsError unityAdsError, String s) {
-
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            UnityAds.initialize(GalleryActivity.this,"4072917",true);
+//            //Network Connectivity Status
+//            UnityAds.addListener(new IUnityAdsListener() {
+//                @Override
+//                public void onUnityAdsReady(String s) {
+//
+//                }
+//
+//                /**
+//                 * @param s
+//                 */
+//                @Override
+//                public void onUnityAdsStart(String s) {
+//
+//                }
+//
+//                /**
+//                 * @param s
+//                 * @param finishState
+//                 */
+//                @Override
+//                public void onUnityAdsFinish(String s, UnityAds.FinishState finishState) {
+//
+//                }
+//
+//                /**
+//                 * @param unityAdsError
+//                 * @param s
+//                 */
+//                @Override
+//                public void onUnityAdsError(UnityAds.UnityAdsError unityAdsError, String s) {
+//
+//                }
+//            });
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
 
         //Network Connectivity Statu
@@ -202,7 +202,7 @@ public abstract class GalleryActivity extends BaseGameGalleryActivity
         }
 
         try {
-            new Thread(){
+            new Thread() {
                 @Override
                 public void run() {
                     super.run();
@@ -217,7 +217,7 @@ public abstract class GalleryActivity extends BaseGameGalleryActivity
         search_btn_backs = (Button) findViewById(R.id.search_btn_back);
         search_btn_backs.setOnClickListener(v -> {
                     try {
-                        if (finalStringListstrlist!=null&&finalStringListstrlist.size()>0) {
+                        if (finalStringListstrlist != null && finalStringListstrlist.size() > 0) {
                             setLastGames(finalStringListstrlist);
                             etInput.getText().clear();
                             InputMethodManager m = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -232,7 +232,7 @@ public abstract class GalleryActivity extends BaseGameGalleryActivity
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 //  Log.d(TAG,"输入："+ textView.getText());
                 try {
-                    if (finalStringListstrlist!=null&&finalStringListstrlist.size()>0) {
+                    if (finalStringListstrlist != null && finalStringListstrlist.size() > 0) {
                         Log.d(TAG, "输入数据回车：" + finalStringListstrlist.size());
                         setLastGames(finalStringListstrlist);
                     }
@@ -257,21 +257,20 @@ public abstract class GalleryActivity extends BaseGameGalleryActivity
             @Override
             public void afterTextChanged(Editable s) {
                 try {
-                    if (finalStringListstrlist!=null&&finalStringListstrlist.size()>0) {
+                    if (finalStringListstrlist != null && finalStringListstrlist.size() > 0) {
                         ArrayList<GameEntity> games;
-                        Log.d(TAG,"输入数据："+finalStringListstrlist.size());
+                        Log.d(TAG, "输入数据：" + finalStringListstrlist.size());
                         if (!TextUtils.isEmpty(etInput.getText()) && etInput.getText().length() == s.length()) {
-                            if (finalStringListstrlist!=null&& finalStringListstrlist.size()>0) {
+                            if (finalStringListstrlist != null && finalStringListstrlist.size() > 0) {
                                 games = LocalGroupSearch.searchGroup(s.toString(), finalStringListstrlist);
-                            }else
-                            {
-                                games=finalStringListstrlist;
+                            } else {
+                                games = finalStringListstrlist;
                             }
                             setLastGames(games);
-                        }else
-                        {
+                        } else {
                             setLastGames(finalStringListstrlist);
-                        }}
+                        }
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -285,6 +284,68 @@ public abstract class GalleryActivity extends BaseGameGalleryActivity
         getMenuInflater().inflate(R.menu.gallery_main_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
+
+    private void openFolder() {
+        // 创建一个意图来打开文档树
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        // 启动活动
+        startActivityForResult(intent, 1);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            List<Uri> uris = new ArrayList<>();
+            if (data != null) {
+                if (data.getClipData() != null) {
+                    // 多个文件被选择
+                    int count = data.getClipData().getItemCount();
+                    for (int i = 0; i < count; i++) {
+                        Uri fileUri = data.getClipData().getItemAt(i).getUri();
+                        // 处理每个文件
+                        uris.add(fileUri);
+                    }
+                } else if (data.getData() != null) {
+                    // 单个文件被选择
+                    Uri fileUri = data.getData();
+                    // 处理这个文件
+                    uris.add(fileUri);
+                }
+            }
+            for (Uri uri : uris) {
+//                reloadGames(true, new File(uri.getPath()));
+//                listFilesInDirectory(uri);
+                searchUri2Roms(uri);
+            }
+        }
+    }
+
+    private String getFileExtension(DocumentFile documentFile) {
+        String fileName = documentFile.getName();
+        NLog.d("File Name", documentFile.getName());
+        if (fileName != null && fileName.contains(".")) {
+            return fileName.substring(fileName.lastIndexOf('.') + 1);
+        }
+        return ""; // 如果没有后缀，则返回空字符串
+    }
+
+    private void listFilesInDirectory(Uri uri) {
+        DocumentFile documentFile = DocumentFile.fromTreeUri(this, uri);
+
+        if (documentFile != null && documentFile.isDirectory()) {
+            for (DocumentFile file : documentFile.listFiles()) {
+                // 这里可以进行文件处理，比如打印文件名称
+                String file_ext = getFileExtension(file);
+                if (file_ext.equals("nes")) {
+                    NLog.d("File Name2", file.getName());
+                }
+            }
+        } else {
+            Log.e("Error", "Not a valid directory");
+        }
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -303,23 +364,23 @@ public abstract class GalleryActivity extends BaseGameGalleryActivity
                 }
                 return true;
             } else if (itemId == R.id.gallery_menu_reload) {
-                try {
-
-                    reloadGames(true, null);
-                    try {
-                        GameDbUtil.getInstance().GetGameEntityService().deleteAll();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+//                try {
+//
+//                    reloadGames(true, null);
+//                    try {
+//                        GameDbUtil.getInstance().GetGameEntityService().deleteAll();
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+                openFolder();
                 return true;
             } else if (itemId == R.id.gallery_menu_exit) {
                 finish();
                 return true;
-            }else if(itemId == R.id.gallery_menu_download)
-            {
+            } else if (itemId == R.id.gallery_menu_download) {
 
                 try {
                     try {
@@ -368,14 +429,16 @@ public abstract class GalleryActivity extends BaseGameGalleryActivity
         super.onPause();
         PreferenceUtil.saveLastGalleryTab(this, pager.getCurrentItem());
     }
-    static int resnum=0;
+
+    static int resnum = 0;
+
     @Override
     public void onItemClick(GameEntity game) {
 
-        if(UnityAds.isReady("qizhuorewardedVideo")&&resnum % 7 == 0&&resnum!=0&&resnum!=1){
-            UnityAds.show(GalleryActivity.this);
-            resnum++;
-        }
+//        if(UnityAds.isReady("qizhuorewardedVideo")&&resnum % 7 == 0&&resnum!=0&&resnum!=1){
+//            UnityAds.show(GalleryActivity.this);
+//            resnum++;
+//        }
         File gameFile = new File(game.path);
         NLog.i(TAG, "select " + game);
         if (game.isInArchive()) {
@@ -383,7 +446,7 @@ public abstract class GalleryActivity extends BaseGameGalleryActivity
             try {
                 gameFile = new File(getExternalCacheDir(), game.checksum);
                 game.path = gameFile.getAbsolutePath();
-                GameEntity games =   GameDbUtil.getInstance(). GetGameEntityService().queryBuilder().where( GameEntityDao.Properties.Zipfile_id.eq( game.zipfile_id)).unique();
+                GameEntity games = GameDbUtil.getInstance().GetGameEntityService().queryBuilder().where(GameEntityDao.Properties.Zipfile_id.eq(game.zipfile_id)).unique();
 //
 //            ZipRomFile zipRomFile =GameDbUtil.getInstance().
 //                    dbHelper.selectObjFromDb(ZipRomFile.class,
@@ -406,7 +469,7 @@ public abstract class GalleryActivity extends BaseGameGalleryActivity
             game._id = System.currentTimeMillis();
             game.set_id(System.currentTimeMillis());
             game.runCount++;
-            GameDbUtil.getInstance().setGameEntity( game);
+            GameDbUtil.getInstance().setGameEntity(game);
             if (!finalStringListstrlist.contains(game)) {
                 finalStringListstrlist.add(game);
             }
@@ -553,4 +616,31 @@ public abstract class GalleryActivity extends BaseGameGalleryActivity
         adapter.onSaveInstanceState(outState);
     }
 
+    @Override
+    public void onRomsCopyStart() {
+        super.onRomsCopyStart();
+        showSearchProgressDialog(false);
+    }
+
+    @Override
+    public void onRomsFoundFile(String name) {
+        if (searchDialog != null) {
+            runOnUiThread(() -> {
+                if (searchDialog != null) {
+                    searchDialog.setMessage("查找到文件:" + name);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onRomsCopy2Files(File file) {
+        if (searchDialog != null) {
+            runOnUiThread(() -> {
+                if (searchDialog != null) {
+                    searchDialog.setMessage("正在复制文件:" + file.getName());
+                }
+            });
+        }
+    }
 }

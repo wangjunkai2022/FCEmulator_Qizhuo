@@ -1,8 +1,8 @@
 buildscript {
     repositories {
         google()
-        jcenter()
-        maven { url "https://jitpack.io" }
+        mavenCentral()
+        maven { url = "https://verve.jfrog.io/artifactory/verve-gradle-dev" }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.2'
@@ -15,8 +15,8 @@ buildscript {
 allprojects {
     repositories {
         google()
-        jcenter()
-        maven { url "https://jitpack.io" }
+        mavenCentral()
+        maven { url = "https://verve.jfrog.io/artifactory/verve-gradle-dev" }
     }
 }
 

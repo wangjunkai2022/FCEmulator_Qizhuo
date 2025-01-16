@@ -3,6 +3,7 @@ package com.qizhuo.framework.ui.gamegallery;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -18,12 +19,13 @@ import com.qizhuo.framework.R;
 import com.qizhuo.framework.base.EmulatorActivity;
 import com.qizhuo.framework.gamedata.dao.entity.GameEntity;
 import com.qizhuo.framework.ui.gamegallery.RomsFinder.OnRomsFinderListener;
+import com.qizhuo.framework.ui.gamegallery.CopyRoms2Files.OnRomsCopyListener;
 
 import com.qizhuo.framework.utils.DialogUtils;
 import com.qizhuo.framework.utils.FileUtilsa;
 
 abstract public class BaseGameGalleryActivity extends AppCompatActivity
-        implements OnRomsFinderListener {
+        implements OnRomsFinderListener, OnRomsCopyListener {
 
     private static final String TAG = "BaseGameGalleryActivity";
 
@@ -32,7 +34,7 @@ abstract public class BaseGameGalleryActivity extends AppCompatActivity
     protected boolean reloadGames = true;
     protected boolean reloading = false;
     private RomsFinder romsFinder = null;
-   // private DatabaseHelper dbHelper = null;
+    // private DatabaseHelper dbHelper = null;
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
@@ -72,16 +74,22 @@ abstract public class BaseGameGalleryActivity extends AppCompatActivity
             romsFinder.stopSearch();
         }
     }
-//开始游戏
+
+    //开始游戏
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     protected void reloadGames(boolean searchNew, File selectedFolder) {
         if (romsFinder == null) {
             reloadGames = false;
             reloading = searchNew;
             romsFinder = new RomsFinder(exts, inZipExts, this, this, searchNew, selectedFolder);
-          //  if (!romsFinder.isAlive())
+            //  if (!romsFinder.isAlive())
             romsFinder.start();
         }
+    }
+
+    public void searchUri2Roms(Uri uri) {
+        CopyRoms2Files search = new CopyRoms2Files(this, uri, this);
+        search.start();
     }
 
     @Override
@@ -149,4 +157,13 @@ abstract public class BaseGameGalleryActivity extends AppCompatActivity
         return set;
     }
 
+    @Override
+    public void onRomsCopyStart() {
+
+    }
+
+    @Override
+    public void onRomsFinderCancel() {
+        reloadGames(true, getExternalFilesDir(null));
+    }
 }
