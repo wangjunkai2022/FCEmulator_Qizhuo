@@ -18,8 +18,8 @@ android {
         applicationId 'com.qizhuo.fcnes'
         minSdkVersion 19
         targetSdkVersion 30
-        versionCode 1013
-        versionName "1.0.13"
+        versionCode 1000
+        versionName "1.0.00"
         resConfigs "zh", "en"
         ndk {
             abiFilters 'armeabi-v7a', 'arm64-v8a'
@@ -79,13 +79,13 @@ android {
 
     //原生代码调试符号文件
 //    android.buildTypes.release.ndk.debugSymbolLevel = { SYMBOL_TABLE | FULL }
-    applicationVariants.all { variant ->
-        variant.outputs.all {
-            def fileName = project.name + '-' + variant.name + '-V' +
-                    defaultConfig.versionCode + ".apk"
-            outputFileName = fileName
-        }
-    }
+//    applicationVariants.all { variant ->
+//        variant.outputs.all {
+//            def fileName = project.name + '-' + variant.name + '-V' +
+//                    defaultConfig.versionCode + ".apk"
+//            outputFileName = fileName
+//        }
+//    }
     externalNativeBuild {
         cmake {
             path 'src/main/cpp/CMakeLists.txt'
