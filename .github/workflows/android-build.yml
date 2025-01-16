@@ -32,22 +32,24 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: appnes/build/outputs/apk/release/appnes-release.apk  # 添加 APK 的路径
-
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub 提供的 token
+          
       - name: List appgg files in output directory
         run: ls -l appgg/build/outputs/apk/release/
 
       - name: Upload appgg APK to Release
-          uses: softprops/action-gh-release@v1
-          with:
-            files: appgg/build/outputs/apk/release/appgg-release.apk  # 添加 APK 的路径
-
+        uses: softprops/action-gh-release@v1
+        with:
+          files: appgg/build/outputs/apk/release/appgg-release.apk  # 添加 APK 的路径
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub 提供的 token
       - name: List appgbc files in output directory
         run: ls -l appgbc/build/outputs/apk/release/
 
       - name: Upload appgbc APK to Release
-          uses: softprops/action-gh-release@v1
-          with:
-            files: appgbc/build/outputs/apk/release/appgbc-release.apk  # 添加 APK 的路径
-
+        uses: softprops/action-gh-release@v1
+        with:
+          files: appgbc/build/outputs/apk/release/appgbc-release.apk  # 添加 APK 的路径
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub 提供的 token
