@@ -37,3 +37,25 @@ jobs:
             appgg/build/outputs/apk/release/*-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub 提供的 token
+
+      - name: Clear Build project
+          run: ./gradlew clean
+
+      - name: Build the RomAdd to project
+          run: ./gradlew assembleRelease -PaddRom
+
+      - name: Change Apk Name
+        run: |
+          mv appnes/build/outputs/apk/release/*-release.apk appnes/build/outputs/apk/release/appnes-rom-release.apk
+          mv appgbc/build/outputs/apk/release/*-release.apk appnes/build/outputs/apk/release/appgbc-rom-release.apk
+          mv appgg/build/outputs/apk/release/*-release.apk appnes/build/outputs/apk/release/appgg-rom-release.apk
+
+      - name: Upload APK to Release
+          uses: softprops/action-gh-release@v1
+          with:
+            files: |
+              appnes/build/outputs/apk/release/*-release.apk
+              appgbc/build/outputs/apk/release/*-release.apk
+              appgg/build/outputs/apk/release/*-release.apk
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub 提供的 token
