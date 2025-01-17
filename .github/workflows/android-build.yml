@@ -26,7 +26,10 @@ jobs:
         run: ./gradlew assembleRelease
 
       - name: List appnes files in output directory
-        run: ls -l appnes/build/outputs/apk/release/
+        run: |
+          ls -lsh appnes/build/outputs/apk/release/
+          ls -lsh appgbc/build/outputs/apk/release/
+          ls -lsh appgg/build/outputs/apk/release/
 
       - name: Upload APK to Release
         uses: softprops/action-gh-release@v1
@@ -43,6 +46,12 @@ jobs:
 
       - name: Build the RomAdd to project
         run: ./gradlew assembleRelease -PaddRom
+
+      - name: View information
+        run: |
+          ls -lsh appnes/build/outputs/apk/release/
+          ls -lsh appgbc/build/outputs/apk/release/
+          ls -lsh appgg/build/outputs/apk/release/
 
       - name: Change Apk Name
         run: |
