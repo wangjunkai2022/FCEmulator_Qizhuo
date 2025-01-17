@@ -47,8 +47,8 @@ jobs:
       - name: Change Apk Name
         run: |
           mv appnes/build/outputs/apk/release/*-release.apk appnes/build/outputs/apk/release/appnes-rom-release.apk
-          mv appgbc/build/outputs/apk/release/*-release.apk appnes/build/outputs/apk/release/appgbc-rom-release.apk
-          mv appgg/build/outputs/apk/release/*-release.apk appnes/build/outputs/apk/release/appgg-rom-release.apk
+          mv appgbc/build/outputs/apk/release/*-release.apk appgbc/build/outputs/apk/release/appgbc-rom-release.apk
+          mv appgg/build/outputs/apk/release/*-release.apk appgg/build/outputs/apk/release/appgg-rom-release.apk
 
       - name: Upload APK to Release
         uses: softprops/action-gh-release@v1
