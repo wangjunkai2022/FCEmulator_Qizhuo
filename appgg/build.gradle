@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 ext {
-    isCopyNesZipToAssets = project.hasProperty('addRom') //这里表示是否压缩rom包到安装包中 使用命令 ./gradlew assembleRelease -PaddRom
+    isCopyNesZipToAssets = project.hasProperty('addRom')
+    //这里表示是否压缩rom包到安装包中 使用命令 ./gradlew assembleRelease -PaddRom
 }
 android {
     compileSdkVersion 30
@@ -85,7 +86,7 @@ android {
 
         // 在 assemble 任务前执行
         tasks.whenTaskAdded { task ->
-            if (task.name.startsWith('assemble')) {
+            if (task.name == ('assembleRelease')) {
                 println "开始执行了 创建Rom到 assets!"
                 def zipFile = file('src/main/assets/gamezip/Classified.zip')
                 if (zipFile.exists()) {
@@ -93,6 +94,9 @@ android {
                 } else {
                     task.dependsOn(zipFolderToAssets)
                 }
+            }else if (task.name.startsWith('package')) {
+                println "task.name：${task.name}"
+                task.mustRunAfter(zipFolderToAssets)
             }
         }
 
