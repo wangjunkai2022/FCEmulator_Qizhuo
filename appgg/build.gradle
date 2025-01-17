@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
-
+ext {
+    isCopyNesZipToAssets = project.hasProperty('addRom') //这里表示是否压缩rom包到安装包中 使用命令 ./gradlew assembleRelease -PaddRom
+}
 android {
     compileSdkVersion 30
 
@@ -63,6 +65,51 @@ android {
     }
     lintOptions {
         abortOnError false
+    }
+
+
+    if (isCopyNesZipToAssets) {
+        println "开启了创建Rom到 assets!"
+
+        // 自定义任务：压缩文件夹并复制到 assets
+        task zipFolderToAssets(type: Zip) {
+            println "创建Rom到 assets!"
+            // 指定要压缩的文件夹路径
+            from('../ROM') {
+                include '**/*.gg' // 递归查找任何子目录中的 .gg 文件
+            }
+            // 指定输出 ZIP 文件的位置
+            archiveFileName = 'Classified.zip'
+            destinationDirectory = file('src/main/assets/gamezip/')
+        }
+
+        // 在 assemble 任务前执行
+        tasks.whenTaskAdded { task ->
+            if (task.name.startsWith('assemble')) {
+                println "开始执行了 创建Rom到 assets!"
+                def zipFile = file('src/main/assets/gamezip/Classified.zip')
+                if (zipFile.exists()) {
+                    println "存在不需要创建了"
+                } else {
+                    task.dependsOn(zipFolderToAssets)
+                }
+            }
+        }
+
+        // 让 zipFolderToAssets 任务在 assemble 任务执行后运行
+        zipFolderToAssets.doLast {
+            println "ZIP 文件已成功创建并复制到 assets!"
+        }
+    } else {
+        // 当 isCopyNesZipToAssets 为 false 时，检查并删除指定文件夹
+        def gameZipDir = file('src/main/assets/gamezip')
+
+        if (gameZipDir.exists() && gameZipDir.isDirectory()) {
+            gameZipDir.deleteDir() // 删除目录及其内容
+            println "目录 'gamezip' 已被删除."
+        } else {
+            println "目录 'gamezip' 不存在，无需删除."
+        }
     }
 }
 

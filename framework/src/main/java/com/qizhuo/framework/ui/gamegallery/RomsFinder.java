@@ -52,7 +52,7 @@ public class RomsFinder extends Thread {
             filenameExtFilter = new FilenameExtFilter(exts, true, false);
             inZipFileNameExtFilter = new FilenameExtFilter(inZipExts, true, false);
             androidAppDataFolder = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Android";
-            Log.d(TAG, "RomsFinder: "+androidAppDataFolder);
+            Log.d(TAG, "RomsFinder: " + androidAppDataFolder);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -132,15 +132,15 @@ public class RomsFinder extends Thread {
             activity.runOnUiThread(() -> listener.onRomsFinderStart(searchNew));
 
 //        ArrayList<GameEntity> oldRoms = getAllGames(dbHelper);
-            ArrayList<GameEntity> oldRoms =new ArrayList<>();
-            List<GameEntity>   oldRomslist =  GameDbUtil.getInstance().GetGameEntityList();
-            if(oldRomslist!=null) {
+            ArrayList<GameEntity> oldRoms = new ArrayList<>();
+            List<GameEntity> oldRomslist = GameDbUtil.getInstance().GetGameEntityList();
+            if (oldRomslist != null) {
                 oldRoms.addAll(oldRomslist);
             }
 //        oldRoms = removeNonExistRoms(oldRoms);
             final ArrayList<GameEntity> roms = oldRoms;
             NLog.i(TAG, "old games " + oldRoms.size());
-            if (oldRoms!=null&&oldRoms.size()>0) {
+            if (oldRoms != null && oldRoms.size() > 0) {
                 finalStringListstrlist = oldRoms;
                 activity.runOnUiThread(() -> listener.onRomsFinderFoundGamesInCache(roms));
             }
@@ -152,7 +152,7 @@ public class RomsFinder extends Thread {
                     e.printStackTrace();
                 }
             } else {
-               activity.runOnUiThread(() -> listener.onRomsFinderEnd(true));
+                activity.runOnUiThread(() -> listener.onRomsFinderEnd(true));
             }
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
@@ -279,6 +279,7 @@ public class RomsFinder extends Thread {
             //
             if (selectedFolder == null) {
                 roots = SDCardUtil.getAllStorageLocations();
+                roots.add(activity.getExternalFilesDir(null));
             } else {
                 roots.add(selectedFolder);
             }
@@ -286,7 +287,7 @@ public class RomsFinder extends Thread {
             long startTime = System.currentTimeMillis();
             NLog.i(TAG, "start searching in file system");
             HashSet<String> usedPaths = new HashSet<>();
-            if (roots!=null) {
+            if (roots != null) {
                 for (File root : roots) {
                     try {
                         NLog.i(TAG, "exploring " + root.getAbsolutePath());
@@ -301,7 +302,7 @@ public class RomsFinder extends Thread {
             NLog.i(TAG, "compute checksum");
             int zipEntriesCount = 0;
             ArrayList<File> zips = new ArrayList<>();
-            if  (result!=null) {
+            if (result != null) {
                 for (File file : result) {
                     try {
                         String path = file.getAbsolutePath();
@@ -357,7 +358,7 @@ public class RomsFinder extends Thread {
 
             if (running.get()) {
                 activity.runOnUiThread(() -> {
-                    if (games!=null){
+                    if (games != null) {
                         listener.onRomsFinderNewGames(games);
                     }
                     listener.onRomsFinderEnd(true);
@@ -385,10 +386,10 @@ public class RomsFinder extends Thread {
         Map<Long, GameEntity> zipsMap = new HashMap<>();
 
         try {
-            List< GameEntity> games =   GameDbUtil.getInstance().GetGameEntityList();
+            List<GameEntity> games = GameDbUtil.getInstance().GetGameEntityList();
             //      dbHelper.selectObjsFromDb(ZipRomFile.class, false, null, null)
-            if (games!=null&&games.size()>0) {
-                for (GameEntity zip :games ) {
+            if (games != null && games.size() > 0) {
+                for (GameEntity zip : games) {
 
                     try {
                         File zipFile = new File(zip.path);
@@ -396,7 +397,7 @@ public class RomsFinder extends Thread {
                             zipsMap.put(zip._id, zip);
                         } else {
                             try {
-                                GameEntity gas =   GameDbUtil.getInstance(). GetGameEntityService().queryBuilder().where( GameEntityDao.Properties.Zipfile_id.eq(zip._id)).unique();
+                                GameEntity gas = GameDbUtil.getInstance().GetGameEntityService().queryBuilder().where(GameEntityDao.Properties.Zipfile_id.eq(zip._id)).unique();
                                 // dbHelper.deleteObjFromDb(zip);
                                 // dbHelper.deleteObjsFromDb(GameEntity.class, "where zipfile_id=" + zip._id);
                                 GameDbUtil.getInstance().deleteGameEntity(gas);
@@ -409,7 +410,7 @@ public class RomsFinder extends Thread {
                     }
                 }
             }
-            if (roms!=null) {
+            if (roms != null) {
                 for (GameEntity game : roms) {
 
                     try {

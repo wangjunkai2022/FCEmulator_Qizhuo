@@ -110,28 +110,6 @@ public abstract class GalleryActivity extends BaseGameGalleryActivity
 //                    .build());
 //        }
 //
-        try {
-            new Thread() {
-                @Override
-                public void run() {
-                    super.run();
-                    if (!ZipUtil.checkInit()) {
-                        ZipUtil.Init(getApplication());
-                        try {
-                            if (ZipUtil.fileIsExists()) {
-                                ZipUtil.deletefile();
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }.start();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
 //        try {
 //            UnityAds.initialize(GalleryActivity.this,"4072917",true);
 //            //Network Connectivity Status
@@ -206,6 +184,7 @@ public abstract class GalleryActivity extends BaseGameGalleryActivity
                 @Override
                 public void run() {
                     super.run();
+                    ZipUtil.checkInit(getApplication());
                     reloadGames(true, null);
                 }
             }.start();

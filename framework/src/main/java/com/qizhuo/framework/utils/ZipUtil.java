@@ -1,13 +1,11 @@
 package com.qizhuo.framework.utils;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
-import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,127 +13,113 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
-public class ZipUtil  {
-    private static final String SD_PATH = Environment.getExternalStorageDirectory().getPath();
-   // private static final String SD_PATH = Environment.getDataDirectory().getPath();
+public class ZipUtil {
+    private static String Data_PATH;// = Environment.getExternalStorageDirectory().getPath();
+    // private static final String SD_PATH = Environment.getDataDirectory().getPath();
     //Environment.getExternalStorageDirectory()
-    static  String versionstr="version:1.33";
-    public static void Init(Context context) {
-        try {
-            FileUtils.getInstance(context).copyAssetsToSD("fcgamezip","fcgamezip");
-            FileUtils.getInstance(context).
-                    setFileOperateCallback(new FileUtils.FileOperateCallback() {
-                        @Override
-                        public void onSuccess () {
-                            FileOutputStream fout = null;
-                            try {
+    static String versionstr = "version:1.33";
+    private static String TAG = "ZipUtil";
 
-                                fout = new FileOutputStream(SD_PATH + "/fcgamezip/flag");
-                                byte[] bytes = versionstr.getBytes();
-                                fout.write(bytes);
-                                fout.close();
-                                try {
-                                    unzipFileer();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            } catch (FileNotFoundException e) {
-                                e.printStackTrace();
-                            } catch (IOException e) {
-                                e.printStackTrace();
+    public static void checkInit(Context context) {
+        Data_PATH = context.getExternalFilesDir(null).getPath();
+        FileInputStream fin = null;
+        String path_flag = Data_PATH + "/gamezip/flag";
+        File file = new File(path_flag);
+        if (file.exists()) {
+            try {
+                fin = new FileInputStream(file);
+                int length = fin.available();
+                byte[] buffer = new byte[length];
+                fin.read(buffer);
+                String res = new String(buffer, StandardCharsets.UTF_8);
+                fin.close();
+                boolean isOK = versionstr.equals(res);
+                if (isOK) {
+                    return;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        String files_path = context.getExternalFilesDir(null).getPath() + "/Roms";
+        clearFolder(new File(files_path));
+        // 判断app包里有没有 Classified.zip 文件
+        try {
+            File outDir = new File(files_path);
+            if (!outDir.exists()) {
+                outDir.mkdirs(); // 创建目录
+            }
+            String assetFileName = "gamezip/Classified.zip";
+            // 输入流
+            try (InputStream is = context.getAssets().open(assetFileName);
+                 ZipInputStream zis = new ZipInputStream(is)) {
+
+                ZipEntry zipEntry;
+                byte[] buffer = new byte[1024];
+
+                while ((zipEntry = zis.getNextEntry()) != null) {
+                    // 创建解压后文件的完整路径
+                    File outputFile = new File(files_path, zipEntry.getName());
+
+                    // 如果是目录，则创建目录
+                    if (zipEntry.isDirectory()) {
+                        outputFile.mkdirs();
+                    } else {
+                        // 确保父目录存在
+                        File parentDir = outputFile.getParentFile();
+                        if (!parentDir.exists()) {
+                            parentDir.mkdirs();
+                        }
+
+                        // 写入文件
+                        try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFile))) {
+                            int len;
+                            while ((len = zis.read(buffer)) > 0) {
+                                bos.write(buffer, 0, len);
                             }
                         }
-                        @Override
-                        public void onFailed (String error){
+                    }
+                    zis.closeEntry();
+                }
 
-                        }
-                    });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    private static String TAG="ZipUtil";
-    public static boolean checkInit() {
-        FileInputStream fin = null;
-        try {
-            fin = new FileInputStream(SD_PATH + "/fcgamezip/flag");
-            int length = fin.available();
-            byte[] buffer = new byte[length];
-            fin.read(buffer);
-            String res = new String(buffer, StandardCharsets.UTF_8);
-            fin.close();
-            return versionstr.equals(res);
-        } catch (FileNotFoundException e) {
-            return false;
-        } catch (IOException e) {
-            return false;
-        }
-    }
+                System.out.println("解压完成: " + assetFileName + " 到 " + outDir.getAbsolutePath());
+                // 解压完毕
 
+                File flag_file = new File(path_flag);
+                File parent_dir = new File(flag_file.getParent());
+                if (!parent_dir.exists()) {
+                    parent_dir.mkdirs();
+                }
+                // 创建文件路径
+                try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(flag_file))) {
+                    // 写入数据
+                    bos.write(versionstr.getBytes());
+                    bos.flush();
+                    System.out.println("文件已成功写入: " + file.getAbsolutePath());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    System.err.println("写入文件失败: " + e.getMessage());
+                }
 
-
-
-    public static void unzipFileer()  {
-        // 打开压缩文件
-        //   InputStream inputStream = new FileInputStream(SD_PATH + "/fcgamezip/Classified.zip");
-        try {
-            // UnZipFolderzip(SD_PATH + "/fcgamezip/Classified.zip",SD_PATH + "/fcgamedata/");
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                UnZipFolderzip(SD_PATH + "/fcgamezip/Classified.zip",SD_PATH + "/fcgamezip/");
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.err.println("解压失败: " + e.getMessage());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private static final int BUFF_SIZE = 1024 * 1024; // 1M Byte
-
-    public static boolean deletefile(){
-        try{
-            File f=new File(SD_PATH + "/fcgamezip/");//文件绝对路径
-            clearFolder(f);
-//            if(!f.exists()){
-//                return false;
-//            }
-        }catch (Exception e) {
-            // TODO: handle exception
-            return false;
-        }
-        return true;
-    }
-
-    public static boolean fileIsExists(){
-        try{
-            File f=new File(SD_PATH + "/fcgamezip/Classified.zip");//文件绝对路径
-            if(!f.exists()){
-                return false;
-            }
-        }catch (Exception e) {
-            // TODO: handle exception
-            return false;
-        }
-        return true;
     }
 
     /**
      * 清空文件夹里面全部子文件
      */
     private static void clearFolder(File file) {
-        if(file.isDirectory()){
+        if (file.isDirectory()) {
             File[] childFiles = file.listFiles();
             if (childFiles == null || childFiles.length == 0) {
                 return;
@@ -143,74 +127,51 @@ public class ZipUtil  {
             for (int i = 0; i < childFiles.length; i++) {
                 childFiles[i].delete();
             }
-            return ;
+            return;
         }
     }
 
-    private static Pattern FilePattern = Pattern.compile("[\\\\/:*?\"<>|]");
+    public static void extractFilesWithExtension(Context context, Uri zipUri, String extension) {
+        // 创建目标目录
+        File outputDir = new File(context.getExternalFilesDir(null).getPath() + "/Roms/");
+        if (!outputDir.exists()) {
+            outputDir.mkdirs(); // 创建多级目录
+        }
 
-    /**
-     * 路径遍历 漏洞修复
-     * @param str
-     * @return
-     */
-    public static String filenameFilter(String str) {
-        return str==null?null:FilePattern.matcher(str).replaceAll("");
-    }
-    /**
-     * DeCompress the ZIP to the path
-     * @param zipFileString  name of ZIP
-     * @param outPathString   path to be unZIP
-     * @throws Exception
-     */
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public static void UnZipFolderzip(String zipFileString, String outPathString) throws Exception {
-        try {
-            String fileEncode = EncodeUtil.getEncode(zipFileString,true);
-            ZipInputStream inZip = new ZipInputStream(new FileInputStream(zipFileString),Charset.forName(fileEncode));
+        // 输入流
+        try (InputStream is = context.getContentResolver().openInputStream(zipUri);
+             ZipInputStream zis = new ZipInputStream(is)) {
+
             ZipEntry zipEntry;
-            String szName = "";
-                while ((zipEntry = inZip.getNextEntry()) != null) {
-                szName = zipEntry.getName();
-               String strfile=outPathString  ;
-               // if (zipEntry.isDirectory()) {
-                 File f = new File( strfile);
-                String canonicalPath = f.getCanonicalPath();
-                String strfiless=canonicalPath+ File.separator;
-          //   if (filenameFilter(szName)==null) {
-                  if (!strfiless.equals(strfile)) {
-                    // get the folder name of the widget
-              //    szName = szName.substring(0, szName.length() - 1);
-                //    szName = szName.substring(0, szName.length());
-                    File folder = new File(outPathString + File.separator + szName);
-                    //File folder = new File(outPathString + szName);
-                    folder.mkdirs();
-                } else {
-                    File file = new File(outPathString + File.separator + szName);
-                    file.createNewFile();
-                    // get the output stream of the file
-                    FileOutputStream out = new FileOutputStream(file);
-                    int len;
-                    byte[] buffer = new byte[1024];
-                    // read (len) bytes into buffer
-                    while ((len = inZip.read(buffer)) != -1) {
-                        // write (len) byte from buffer at the position 0
-                        out.write(buffer, 0, len);
-                        out.flush();
+            byte[] buffer = new byte[1024];
+            while ((zipEntry = zis.getNextEntry()) != null) {
+                // 检查扩展名
+                if (!zipEntry.isDirectory() && zipEntry.getName().toLowerCase().endsWith(extension.toLowerCase())) {
+                    File outputFile = new File(outputDir, zipEntry.getName());
+
+                    // 确保父目录存在
+                    File parentDir = outputFile.getParentFile();
+                    if (!parentDir.exists()) {
+                        parentDir.mkdirs();
                     }
 
-                    out.close();
+                    // 写入文件
+                    try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outputFile))) {
+                        int len;
+                        while ((len = zis.read(buffer)) > 0) {
+                            bos.write(buffer, 0, len);
+                        }
+                    }
+                    System.out.println("解压文件: " + outputFile.getAbsolutePath());
                 }
+                zis.closeEntry();
             }
-            inZip.close();
 
-        } catch (IOException e) {
+            System.out.println("解压完成");
+
+        } catch (Exception e) {
             e.printStackTrace();
+            System.err.println("解压失败: " + e.getMessage());
         }
     }
-
-
-
-
-
 }

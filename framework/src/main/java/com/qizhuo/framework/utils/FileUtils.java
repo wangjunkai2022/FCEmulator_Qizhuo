@@ -76,7 +76,7 @@ public class FileUtils {
         try {
             String[] fileNames = context.getAssets().list(srcPath);
             if (fileNames.length > 0) {
-                File file = new File(Environment.getExternalStorageDirectory(), dstPath);
+                File file = new File(context.getExternalFilesDir(null), dstPath);
                 if (!file.exists()) {
                     file.mkdirs();
                 }
@@ -89,7 +89,7 @@ public class FileUtils {
                     }
                 }
             } else {
-                File outFile = new File(Environment.getExternalStorageDirectory(), dstPath);
+                File outFile = new File(context.getExternalFilesDir(null), dstPath);
                 InputStream is = context.getAssets().open(srcPath);
                 FileOutputStream fos = new FileOutputStream(outFile);
                 Log.e("sout複製鏈接", outFile.getAbsolutePath());

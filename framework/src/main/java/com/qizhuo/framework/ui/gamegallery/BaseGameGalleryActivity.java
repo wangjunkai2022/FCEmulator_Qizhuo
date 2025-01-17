@@ -3,9 +3,11 @@ package com.qizhuo.framework.ui.gamegallery;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.content.ContentResolver;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -23,6 +25,8 @@ import com.qizhuo.framework.ui.gamegallery.CopyRoms2Files.OnRomsCopyListener;
 
 import com.qizhuo.framework.utils.DialogUtils;
 import com.qizhuo.framework.utils.FileUtilsa;
+import com.qizhuo.framework.utils.NLog;
+import com.qizhuo.framework.utils.ZipUtil;
 
 abstract public class BaseGameGalleryActivity extends AppCompatActivity
         implements OnRomsFinderListener, OnRomsCopyListener {

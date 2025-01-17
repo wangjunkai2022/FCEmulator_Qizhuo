@@ -34,7 +34,7 @@ public class NesGalleryActivity extends GalleryActivity {
     protected Set<String> getRomExtensions() {
         HashSet<String> set = new HashSet<>();
         set.add("nes");
-        set.add("fds");
+//        set.add("fds");
         return set;
     }
 
